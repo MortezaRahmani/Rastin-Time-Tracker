@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="title desc">
+  <title id="title">Rastin Time Tracker</title>
+  <desc id="desc">A compact README hero showing Rastin Time Tracker as a local-first Flutter time tracker with SQLite, Windows, Android, and optional PHP sync.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101417"/>
+      <stop offset="1" stop-color="#1b2430"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4fd1c5"/>
+      <stop offset="1" stop-color="#f6ad55"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="380" rx="18" fill="url(#bg)"/>
+  <g opacity="0.13" stroke="#ffffff" stroke-width="1">
+    <path d="M80 92H1120"/>
+    <path d="M80 188H1120"/>
+    <path d="M80 284H1120"/>
+    <path d="M170 54V326"/>
+    <path d="M426 54V326"/>
+    <path d="M682 54V326"/>
+    <path d="M938 54V326"/>
+  </g>
+  <g transform="translate(64 54)">
+    <text x="0" y="0" fill="#9fb0c0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="3">LOCAL-FIRST TIME TRACKING</text>
+    <text x="0" y="72" fill="#f7fafc" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="58" font-weight="750">Rastin Time Tracker</text>
+    <text x="0" y="118" fill="#d4dee8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="25">A compact Flutter app for projects, activities, pauses, CSV exports,</text>
+    <text x="0" y="154" fill="#d4dee8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="25">Windows desktop workflows, Android notifications, and optional PHP sync.</text>
+    <rect x="0" y="198" width="455" height="54" rx="12" fill="#0d1117" stroke="#293847"/>
+    <text x="22" y="232" fill="#4fd1c5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22">RTT • 01:24:18</text>
+    <text x="226" y="232" fill="#9fb0c0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">Project timer active</text>
+  </g>
+  <g transform="translate(730 54)">
+    <rect x="0" y="0" width="398" height="272" rx="18" fill="#111820" stroke="#2d3d4d"/>
+    <rect x="28" y="30" width="342" height="56" rx="10" fill="#182331"/>
+    <text x="48" y="65" fill="#f7fafc" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="22" font-weight="650">Project Activities</text>
+    <text x="248" y="65" fill="#f6ad55" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20">12:40</text>
+    <g transform="translate(28 112)">
+      <rect x="0" y="0" width="342" height="42" rx="8" fill="#0d1117"/>
+      <rect x="0" y="0" width="6" height="42" rx="3" fill="#4fd1c5"/>
+      <text x="22" y="27" fill="#d4dee8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18">Design review</text>
+      <text x="246" y="27" fill="#9fb0c0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17">00:45</text>
+    </g>
+    <g transform="translate(28 166)">
+      <rect x="0" y="0" width="342" height="42" rx="8" fill="#0d1117"/>
+      <rect x="0" y="0" width="6" height="42" rx="3" fill="#f6ad55"/>
+      <text x="22" y="27" fill="#d4dee8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18">Sync testing</text>
+      <text x="246" y="27" fill="#9fb0c0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17">01:10</text>
+    </g>
+    <g transform="translate(28 220)">
+      <rect x="0" y="0" width="342" height="42" rx="8" fill="#0d1117"/>
+      <rect x="0" y="0" width="6" height="42" rx="3" fill="#805ad5"/>
+      <text x="22" y="27" fill="#d4dee8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18">CSV export</text>
+      <text x="246" y="27" fill="#9fb0c0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17">00:28</text>
+    </g>
+  </g>
+  <g transform="translate(64 328)">
+    <rect x="0" y="0" width="160" height="34" rx="9" fill="#19232f" stroke="#334557"/>
+    <text x="17" y="23" fill="#d4dee8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">Flutter + Dart</text>
+    <rect x="176" y="0" width="118" height="34" rx="9" fill="#19232f" stroke="#334557"/>
+    <text x="196" y="23" fill="#d4dee8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">SQLite 3</text>
+    <rect x="310" y="0" width="150" height="34" rx="9" fill="#19232f" stroke="#334557"/>
+    <text x="331" y="23" fill="#d4dee8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">PHP 8 sync</text>
+    <rect x="476" y="0" width="164" height="34" rx="9" fill="#19232f" stroke="#334557"/>
+    <text x="497" y="23" fill="#d4dee8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">Windows + Android</text>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+{
+  "projects": [
+    {
+      "syncId": "a8f0d20ce34d4f8db5aa7ce0d3194471",
+      "name": "RTT demo",
+      "color": 4292466762,
+      "createdAt": "2026-08-06T09:00:00+00:00",
+      "updatedAt": "2026-08-06T09:00:00+00:00",
+      "deletedAt": null
+    }
+  ],
+  "entries": [
+    {
+      "syncId": "ce80114862294b83b8bb5a862191eb12",
+      "projectSyncId": "a8f0d20ce34d4f8db5aa7ce0d3194471",
+      "title": "Plan Remote Mode",
+      "description": "Validate the cPanel sync service.",
+      "startedAt": "2026-08-06T09:00:00+00:00",
+      "endedAt": "2026-08-06T09:30:00+00:00",
+      "pausesJson": "[]",
+      "createdAt": "2026-08-06T09:00:00+00:00",
+      "updatedAt": "2026-08-06T09:30:00+00:00",
+      "deletedAt": null
+    }
+  ]
+}
