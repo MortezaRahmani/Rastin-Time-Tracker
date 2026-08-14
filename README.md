@@ -4,7 +4,7 @@
 
 # Rastin Time Tracker
 
-Rastin Time Tracker, or RTT, is a compact personal time tracking application for Windows and Android. It is inspired by Baralga and rebuilt with Flutter, Dart, SQLite 3, and an optional self-hosted PHP 8 + SQLite sync service.
+Rastin Time Tracker, or RTT, is a compact personal time tracking application for Windows and Android. It is inspired by [Baralga](https://github.com/Baralga/baralga) and rebuilt with Flutter, Dart, SQLite 3, and an optional self-hosted PHP 8 + SQLite sync service.
 
 RTT is local-first. The application works fully offline with a local SQLite database, while Remote Mode can synchronize data through a small framework-free PHP service hosted on a personal server or shared hosting account.
 
