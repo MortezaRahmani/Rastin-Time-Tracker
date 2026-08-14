@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/readme/hero.svg" width="100%" alt="Rastin Time Tracker: a compact local-first Flutter time tracker for Windows and Android with optional PHP SQLite sync">
+  <img src="./assets/readme/hero.svg" width="100%" alt="Rastin Time Tracker: compact local-first project time tracking with SQLite and optional PHP sync">
 </p>
 
 # Rastin Time Tracker
@@ -9,6 +9,13 @@ Rastin Time Tracker, or RTT, is a compact personal time tracking application for
 RTT is local-first. The application works fully offline with a local SQLite database, while Remote Mode can synchronize data through a small framework-free PHP service hosted on a personal server or shared hosting account.
 
 License: GPL-3.0-or-later. See [`LICENSE`](./LICENSE).
+
+## Preview
+
+<p align="center">
+  <img src="./assets/readme/rtt.jpg" width="70%" alt="Rastin Time Tracker showing the ready timer screen and an active tracking screen with break reminder controls">
+</p>
+
 
 ## Features
 
