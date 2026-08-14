@@ -569,6 +569,18 @@ class _TrackerPageState extends State<TrackerPage> {
                             },
                           ),
                         ],
+                        if (Platform.isAndroid) ...[
+                          const SizedBox(height: 10),
+                          _CompactSwitchRow(
+                            title: 'Keep screen awake',
+                            subtitle: 'Prevent screen sleep while RTT is open.',
+                            value: widget.store.keepScreenAwake,
+                            onChanged: (value) {
+                              widget.store.setKeepScreenAwake(value);
+                              setDialogState(() {});
+                            },
+                          ),
+                        ],
                       ],
                     ),
                   ),

@@ -154,6 +154,8 @@ class RttDatabase {
         reminder_sound_path TEXT,
         minimize_to_tray INTEGER NOT NULL DEFAULT 0
           CHECK (minimize_to_tray IN (0, 1)),
+        keep_screen_awake INTEGER NOT NULL DEFAULT 0
+          CHECK (keep_screen_awake IN (0, 1)),
         local_database_path TEXT
       );
       CREATE TABLE IF NOT EXISTS sync_state (
@@ -218,6 +220,12 @@ class RttDatabase {
       database,
       'app_preferences',
       'minimize_to_tray',
+      'INTEGER NOT NULL DEFAULT 0',
+    );
+    _ensureColumn(
+      database,
+      'app_preferences',
+      'keep_screen_awake',
       'INTEGER NOT NULL DEFAULT 0',
     );
     database.execute('''
@@ -355,6 +363,9 @@ class RttDatabase {
     'minimize_to_tray' => _single(
       'SELECT minimize_to_tray FROM app_preferences WHERE id = 1',
     ),
+    'keep_screen_awake' => _single(
+      'SELECT keep_screen_awake FROM app_preferences WHERE id = 1',
+    ),
     'sync_endpoint' => _single('SELECT endpoint FROM sync_state WHERE id = 1'),
     'sync_cursor' => _single('SELECT cursor FROM sync_state WHERE id = 1'),
     'last_sync_at' => _single(
@@ -409,6 +420,11 @@ class RttDatabase {
       case 'minimize_to_tray':
         _database.execute(
           'UPDATE app_preferences SET minimize_to_tray = ? WHERE id = 1',
+          [value == 'true' ? 1 : 0],
+        );
+      case 'keep_screen_awake':
+        _database.execute(
+          'UPDATE app_preferences SET keep_screen_awake = ? WHERE id = 1',
           [value == 'true' ? 1 : 0],
         );
       case 'sync_endpoint':

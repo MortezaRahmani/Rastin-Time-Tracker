@@ -5,7 +5,7 @@ RequestExecutionLevel user
 !define APP_NAME "Rastin Time Tracker"
 !define APP_SHORT_NAME "RTT"
 !define APP_EXE "rastin_time_tracker.exe"
-!define APP_VERSION "1.0.0"
+!define APP_VERSION "1.0.1"
 !define SOURCE_DIR "..\..\app\build\windows\x64\runner\Release"
 !define OUT_FILE "..\..\SHARE\RTT-Windows-Setup-NSIS.exe"
 

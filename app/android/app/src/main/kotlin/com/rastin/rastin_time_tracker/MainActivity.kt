@@ -2,6 +2,7 @@ package com.rastin.rastin_time_tracker
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,6 +15,8 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
+import android.os.SystemClock
+import android.view.WindowManager
 import java.nio.charset.StandardCharsets
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.android.FlutterActivity
@@ -23,12 +26,162 @@ class MainActivity : FlutterActivity() {
     companion object {
         const val trackingIntentAction =
             "com.rastin.rastin_time_tracker.TRACKING_ACTION"
+        const val breakAlarmAction = "break_alarm"
+        private const val breakReminderNotificationId = 1002
+        private const val breakReminderChannelId = "rtt_break_reminder"
+        private const val breakReminderAlarmRequest = 2301
+        private const val reminderPrefs = "rtt_reminders"
+        private const val reminderMinutesKey = "break_reminder_minutes"
+        private const val reminderActiveKey = "break_reminder_active"
         private var activeMethodChannel: MethodChannel? = null
 
         fun dispatchTrackingAction(action: String): Boolean {
             val channel = activeMethodChannel ?: return false
             channel.invokeMethod("trackingNotificationAction", action)
             return true
+        }
+
+        fun showBreakReminderNotification(context: Context) {
+            val manager = context.getSystemService(NotificationManager::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    breakReminderChannelId,
+                    "Break reminders",
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Shows break reminders while tracking."
+                }
+                manager.createNotificationChannel(channel)
+            }
+
+            val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Notification.Builder(context, breakReminderChannelId)
+            } else {
+                @Suppress("DEPRECATION")
+                Notification.Builder(context)
+            }
+            builder
+                .setSmallIcon(R.drawable.ic_stat_rtt)
+                .setContentTitle("RTT")
+                .setContentText("Wanna take a break?")
+                .setContentIntent(openAppPendingIntent(context))
+                .setAutoCancel(true)
+                .setShowWhen(true)
+                .setCategory(Notification.CATEGORY_REMINDER)
+                .setPriority(Notification.PRIORITY_HIGH)
+                .addAction(
+                    Notification.Action.Builder(
+                        Icon.createWithResource(
+                            context,
+                            android.R.drawable.ic_media_pause
+                        ),
+                        "Pause",
+                        trackingActionPendingIntent(context, "break_pause", 2201)
+                    ).build()
+                )
+                .addAction(
+                    Notification.Action.Builder(
+                        Icon.createWithResource(
+                            context,
+                            android.R.drawable.ic_menu_close_clear_cancel
+                        ),
+                        "Continue",
+                        trackingActionPendingIntent(context, "break_continue", 2202)
+                    ).build()
+                )
+            manager.notify(breakReminderNotificationId, builder.build())
+        }
+
+        fun cancelBreakReminderNotification(context: Context) {
+            context.getSystemService(NotificationManager::class.java)
+                .cancel(breakReminderNotificationId)
+        }
+
+        fun scheduleBreakReminderAlarm(context: Context, minutes: Int) {
+            val safeMinutes = minutes.coerceIn(1, 1440)
+            context.getSharedPreferences(reminderPrefs, Context.MODE_PRIVATE)
+                .edit()
+                .putInt(reminderMinutesKey, safeMinutes)
+                .putBoolean(reminderActiveKey, true)
+                .apply()
+            val alarm = context.getSystemService(AlarmManager::class.java)
+            val triggerAt = SystemClock.elapsedRealtime() +
+                safeMinutes * 60_000L
+            val pendingIntent = breakAlarmPendingIntent(context)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarm.setAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    triggerAt,
+                    pendingIntent
+                )
+            } else {
+                alarm.set(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    triggerAt,
+                    pendingIntent
+                )
+            }
+        }
+
+        fun scheduleNextStoredBreakReminderAlarm(context: Context) {
+            val preferences = context.getSharedPreferences(
+                reminderPrefs,
+                Context.MODE_PRIVATE
+            )
+            if (!preferences.getBoolean(reminderActiveKey, false)) {
+                return
+            }
+            val minutes = preferences.getInt(reminderMinutesKey, 30)
+            scheduleBreakReminderAlarm(context, minutes)
+        }
+
+        fun cancelBreakReminderAlarm(context: Context) {
+            context.getSharedPreferences(reminderPrefs, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(reminderActiveKey, false)
+                .apply()
+            context.getSystemService(AlarmManager::class.java)
+                .cancel(breakAlarmPendingIntent(context))
+        }
+
+        private fun breakAlarmPendingIntent(context: Context): PendingIntent {
+            val intent = Intent(context, TrackingActionReceiver::class.java)
+                .putExtra("tracking_action", breakAlarmAction)
+            return PendingIntent.getBroadcast(
+                context,
+                breakReminderAlarmRequest,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
+        private fun openAppPendingIntent(context: Context): PendingIntent {
+            val intent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            return PendingIntent.getActivity(
+                context,
+                2100,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
+        private fun trackingActionPendingIntent(
+            context: Context,
+            action: String,
+            requestCode: Int
+        ): PendingIntent {
+            val intent = Intent(context, TrackingActionReceiver::class.java).apply {
+                putExtra("tracking_action", action)
+            }
+            return PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
     }
 
@@ -37,15 +190,14 @@ class MainActivity : FlutterActivity() {
     private val saveCsvRequest = 9018
     private val notificationPermissionRequest = 9019
     private val trackingNotificationId = 1001
-    private val breakReminderNotificationId = 1002
     private val trackingChannelId = "rtt_tracking"
-    private val breakReminderChannelId = "rtt_break_reminder"
     private var pendingAudioPick: MethodChannel.Result? = null
     private var pendingCsvSave: MethodChannel.Result? = null
     private var pendingCsvContent: String? = null
     private var methodChannel: MethodChannel? = null
     private var pendingTrackingAction: String? = null
     private var reminderPlayer: MediaPlayer? = null
+    private var keepScreenAwakeEnabled = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -83,11 +235,26 @@ class MainActivity : FlutterActivity() {
                     result.success(null)
                 }
                 "showBreakReminderNotification" -> {
-                    showBreakReminderNotification()
+                    showBreakReminderNotification(this)
                     result.success(null)
                 }
                 "cancelBreakReminderNotification" -> {
-                    cancelBreakReminderNotification()
+                    cancelBreakReminderNotification(this)
+                    result.success(null)
+                }
+                "scheduleBreakReminderAlarm" -> {
+                    scheduleBreakReminderAlarm(
+                        this,
+                        call.argument<Int>("minutes") ?: 30
+                    )
+                    result.success(null)
+                }
+                "cancelBreakReminderAlarm" -> {
+                    cancelBreakReminderAlarm(this)
+                    result.success(null)
+                }
+                "setKeepScreenAwake" -> {
+                    setKeepScreenAwake(call.argument<Boolean>("enabled") ?: false)
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -104,6 +271,11 @@ class MainActivity : FlutterActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleTrackingIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyKeepScreenAwake()
     }
 
     override fun onDestroy() {
@@ -243,60 +415,9 @@ class MainActivity : FlutterActivity() {
         manager.notify(trackingNotificationId, builder.build())
     }
 
-    private fun showBreakReminderNotification() {
-        if (!ensureNotificationPermission()) return
-        val manager = getSystemService(NotificationManager::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                breakReminderChannelId,
-                "Break reminders",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Shows break reminders while tracking."
-            }
-            manager.createNotificationChannel(channel)
-        }
-
-        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(this, breakReminderChannelId)
-        } else {
-            @Suppress("DEPRECATION")
-            Notification.Builder(this)
-        }
-        builder
-            .setSmallIcon(R.drawable.ic_stat_rtt)
-            .setContentTitle("RTT")
-            .setContentText("Wanna take a break?")
-            .setContentIntent(openAppPendingIntent())
-            .setAutoCancel(true)
-            .setShowWhen(true)
-            .setCategory(Notification.CATEGORY_REMINDER)
-            .setPriority(Notification.PRIORITY_HIGH)
-            .addAction(
-                Notification.Action.Builder(
-                    Icon.createWithResource(this, android.R.drawable.ic_media_pause),
-                    "Pause",
-                    backgroundTrackingActionPendingIntent("break_pause", 2201)
-                ).build()
-            )
-            .addAction(
-                Notification.Action.Builder(
-                    Icon.createWithResource(this, android.R.drawable.ic_menu_close_clear_cancel),
-                    "Continue",
-                    backgroundTrackingActionPendingIntent("break_continue", 2202)
-                ).build()
-            )
-        manager.notify(breakReminderNotificationId, builder.build())
-    }
-
     private fun cancelTrackingNotification() {
         getSystemService(NotificationManager::class.java)
             .cancel(trackingNotificationId)
-    }
-
-    private fun cancelBreakReminderNotification() {
-        getSystemService(NotificationManager::class.java)
-            .cancel(breakReminderNotificationId)
     }
 
     private fun ensureNotificationPermission(): Boolean {
@@ -438,5 +559,18 @@ class MainActivity : FlutterActivity() {
             release()
         }
         reminderPlayer = null
+    }
+
+    private fun setKeepScreenAwake(enabled: Boolean) {
+        keepScreenAwakeEnabled = enabled
+        applyKeepScreenAwake()
+    }
+
+    private fun applyKeepScreenAwake() {
+        if (keepScreenAwakeEnabled) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
     }
 }

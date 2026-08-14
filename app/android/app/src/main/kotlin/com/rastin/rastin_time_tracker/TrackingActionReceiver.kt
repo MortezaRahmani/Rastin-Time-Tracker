@@ -7,6 +7,16 @@ import android.content.Intent
 class TrackingActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.getStringExtra("tracking_action") ?: return
+        if (action == MainActivity.breakAlarmAction) {
+            MainActivity.showBreakReminderNotification(context)
+            MainActivity.dispatchTrackingAction("show_break_reminder")
+            MainActivity.scheduleNextStoredBreakReminderAlarm(context)
+            return
+        }
+        if (action == "break_continue") {
+            MainActivity.cancelBreakReminderNotification(context)
+            MainActivity.scheduleNextStoredBreakReminderAlarm(context)
+        }
         if (MainActivity.dispatchTrackingAction(action)) return
         val activityIntent = Intent(context, MainActivity::class.java).apply {
             this.action = MainActivity.trackingIntentAction

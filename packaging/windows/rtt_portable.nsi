@@ -4,7 +4,7 @@ RequestExecutionLevel user
 
 !define APP_NAME "Rastin Time Tracker Portable"
 !define APP_EXE "rastin_time_tracker.exe"
-!define APP_VERSION "1.0.0"
+!define APP_VERSION "1.0.1"
 !define SOURCE_DIR "..\..\app\build\windows\x64\runner\Release"
 !define OUT_FILE "..\..\releases\windows\RTT-Windows-Portable-x64.exe"
 

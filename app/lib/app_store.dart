@@ -39,6 +39,7 @@ class AppStore extends ChangeNotifier {
   bool reminderSoundEnabled = false;
   String? reminderSoundPath;
   bool minimizeToTray = false;
+  bool keepScreenAwake = false;
   Timer? _ticker;
   Timer? _breakReminderTimer;
   Timer? _breakReminderDismissTimer;
@@ -76,11 +77,13 @@ class AppStore extends ChangeNotifier {
     reminderSoundEnabled = _database.setting('reminder_sound_enabled') == '1';
     reminderSoundPath = _database.setting('reminder_sound_path');
     minimizeToTray = _database.setting('minimize_to_tray') == '1';
+    keepScreenAwake = _database.setting('keep_screen_awake') == '1';
     localDatabasePath = _database.path;
     selectedProject = projects.first;
     _refresh();
     _scheduleBreakReminder();
     _syncTrackingNotification();
+    syncScreenAwakePreference();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       notifyListeners();
       _syncTrackingNotification();
@@ -137,6 +140,24 @@ class AppStore extends ChangeNotifier {
     _database.setSetting('minimize_to_tray', value.toString());
     syncWindowPreferences();
     notifyListeners();
+  }
+
+  void setKeepScreenAwake(bool value) {
+    keepScreenAwake = value;
+    _database.setSetting('keep_screen_awake', value.toString());
+    syncScreenAwakePreference();
+    notifyListeners();
+  }
+
+  void syncScreenAwakePreference() {
+    if (!Platform.isAndroid) return;
+    unawaited(
+      _windowChannel
+          .invokeMethod<void>('setKeepScreenAwake', {
+            'enabled': keepScreenAwake,
+          })
+          .catchError((_) {}),
+    );
   }
 
   void syncWindowPreferences() {
@@ -557,17 +578,17 @@ class AppStore extends ChangeNotifier {
   void _scheduleBreakReminder() {
     _breakReminderTimer?.cancel();
     _breakReminderDismissTimer?.cancel();
+    unawaited(_trackingNotifications.cancelScheduledBreakReminder());
     if (!breakReminderEnabled ||
         runningEntry == null ||
         runningEntry!.isPaused) {
       return;
     }
-    _breakReminderTimer = Timer(Duration(minutes: breakReminderMinutes), () {
+    final delay = Duration(minutes: breakReminderMinutes);
+    unawaited(_trackingNotifications.scheduleBreakReminder(delay));
+    _breakReminderTimer = Timer(delay, () {
       if (runningEntry == null || runningEntry!.isPaused) return;
-      breakReminderVisible = true;
-      unawaited(_trackingNotifications.showBreakReminder());
-      _playReminderSound();
-      notifyListeners();
+      _showBreakReminder();
       _scheduleBreakReminder();
       _breakReminderDismissTimer?.cancel();
       _breakReminderDismissTimer = Timer(const Duration(seconds: 30), () {
@@ -577,6 +598,15 @@ class AppStore extends ChangeNotifier {
         notifyListeners();
       });
     });
+  }
+
+  void _showBreakReminder() {
+    if (runningEntry == null || runningEntry!.isPaused) return;
+    if (breakReminderVisible) return;
+    breakReminderVisible = true;
+    unawaited(_trackingNotifications.showBreakReminder());
+    _playReminderSound();
+    notifyListeners();
   }
 
   void _playReminderSound() {
@@ -602,6 +632,7 @@ class AppStore extends ChangeNotifier {
     _breakReminderTimer = null;
     _breakReminderDismissTimer = null;
     unawaited(_trackingNotifications.cancelBreakReminder());
+    unawaited(_trackingNotifications.cancelScheduledBreakReminder());
   }
 
   void _reloadFromDatabase() {
@@ -637,6 +668,8 @@ class AppStore extends ChangeNotifier {
         pause();
       case TrackingNotificationService.breakContinueAction:
         continueAfterBreakReminder();
+      case TrackingNotificationService.showBreakReminderAction:
+        _showBreakReminder();
     }
   }
 

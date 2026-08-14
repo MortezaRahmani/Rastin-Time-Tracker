@@ -11,6 +11,7 @@ class TrackingNotificationService {
   static const stopAction = 'stop_tracking';
   static const breakPauseAction = 'break_pause';
   static const breakContinueAction = 'break_continue';
+  static const showBreakReminderAction = 'show_break_reminder';
   static const _channel = MethodChannel('rtt/window');
 
   void Function(String action)? _onAction;
@@ -60,5 +61,18 @@ class TrackingNotificationService {
   Future<void> cancelBreakReminder() async {
     if (!Platform.isAndroid || !_initialized) return;
     await _channel.invokeMethod<void>('cancelBreakReminderNotification');
+  }
+
+  Future<void> scheduleBreakReminder(Duration delay) async {
+    if (!Platform.isAndroid || !_initialized) return;
+    await _channel.invokeMethod<void>(
+      'scheduleBreakReminderAlarm',
+      {'minutes': delay.inMinutes.clamp(1, 1440).toInt()},
+    );
+  }
+
+  Future<void> cancelScheduledBreakReminder() async {
+    if (!Platform.isAndroid || !_initialized) return;
+    await _channel.invokeMethod<void>('cancelBreakReminderAlarm');
   }
 }
